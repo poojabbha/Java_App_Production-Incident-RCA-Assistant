@@ -1,0 +1,34 @@
+TECHNICAL SPECIFICATION
+Claim Payment Calculation Service — v2.3
+Owner: Claims Platform Engineering
+Component: com.acme.claims.payment.PaymentCalculator
+Last updated: 14 months ago
+
+1. Purpose
+This service computes the final payout amount for a claim, combining the
+base settlement amount with any applicable surcharge, and produces the
+amount that is sent to the Payments system for check issuance.
+
+2. Rounding Rule (Regulatory Requirement)
+All final payment amounts MUST be rounded using ROUND_HALF_UP to 2 decimal
+places, in compliance with State Insurance Code Section 12.4, which requires
+that any rounding ambiguity in a claimant's favor round upward rather than
+to the nearest even value. This requirement applies regardless of the
+internal precision used during intermediate calculation steps.
+
+This requirement was reaffirmed after a prior production incident
+(see JIRA-3987) in which a rounding-mode change caused payments to differ
+from the calculated amount by up to $0.02 on claims involving a surcharge.
+
+3. Inputs
+- baseAmount (BigDecimal): the approved settlement amount before surcharge
+- surchargeRate (BigDecimal): jurisdiction-specific surcharge percentage
+
+4. Output
+finalPaymentAmount (BigDecimal, scale 2): sent to the Payments API for
+check issuance.
+
+5. Dependencies
+Implemented in PaymentCalculator.java, method calculateFinalPayment(),
+which delegates rounding to the shared roundAmount() utility method in
+the same class.

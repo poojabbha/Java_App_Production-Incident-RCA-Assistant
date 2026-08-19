@@ -1,0 +1,18 @@
+FRESHSERVICE TICKET #FS-88213
+Reported by: Regional Claims Adjuster (West Region)
+Priority: High
+Environment: Production
+Affected Component: PaymentCalculator (claim payment rounding/surcharge calculation)
+First observed: 4 days ago
+Status: Open — assigned to you
+
+Description:
+"Multiple claims processed over the last few days are showing final
+payment amounts that are 1-2 cents off from what's shown on the adjuster's
+worksheet. It seems to only happen on claims where a surcharge applies.
+A few claimants have called asking why their check doesn't match the
+estimate they were given. This started sometime this week — I don't
+remember it happening before that. Can someone look into why the amounts
+don't match and what needs to be fixed?"
+
+Your task: investigate the likely root cause and recommend next steps.

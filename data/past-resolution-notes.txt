@@ -1,0 +1,32 @@
+PRODUCTION INCIDENT — PAST RESOLUTION NOTES
+
+Incident: Claim payments off by $0.01-$0.02 (resolved, 8 months ago)
+Linked ticket: JIRA-3987
+Severity: Medium — affected ~40 claims before caught
+
+Symptom:
+Adjusters reported final payment amounts that were 1-2 cents different from
+their manual worksheet calculations, specifically on claims with a surcharge
+applied.
+
+Root cause:
+The rounding step in PaymentCalculator did not explicitly set a
+RoundingMode. Java's BigDecimal.setScale() without an explicit mode
+defaulted to HALF_EVEN (banker's rounding) in one code path. State
+Insurance Code Section 12.4 requires HALF_UP rounding for any
+claimant-favorable ambiguity, so HALF_EVEN produced incorrect (and
+inconsistent) results on roughly half of amounts ending in exactly .xx5.
+
+Fix applied:
+- Explicitly set RoundingMode.HALF_UP in the rounding step, matching tech
+  spec section 2.
+- Added unit test PaymentCalculatorRoundingTest covering boundary values
+  (e.g., 10.005, 10.015, 10.025).
+- Added a code comment referencing State Insurance Code Section 12.4 next
+  to the rounding call, to prevent silent regression.
+
+Lesson for future changes:
+Any refactor that touches PaymentCalculator's rounding logic must preserve
+RoundingMode.HALF_UP explicitly. This is a regulatory requirement, not a
+style preference — do not let a future "cleanup" refactor quietly switch
+it back to a different mode.

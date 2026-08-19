@@ -1,0 +1,27 @@
+JIRA EXPORT — Claims Payment Component
+Filtered view: tickets touching com.acme.claims.payment.*, last 12 months.
+
+ID          STATUS      DATE            TITLE
+JIRA-3987   Resolved    8 months ago    Claim payments off by $0.01-$0.02 on surcharge claims
+JIRA-4519   Deployed    5 days ago      Add caching layer for policy lookup service
+JIRA-4521   Deployed    3 days ago      Refactor PaymentCalculator for readability - consolidate rounding logic
+FS-88213    Open        Today           (Incoming) Claim payment amounts differ from adjuster worksheet by a few cents
+
+--- JIRA-3987 detail ---
+Resolution: Rounding mode was not explicitly set and defaulted to HALF_EVEN
+in one code path. Fixed by explicitly setting RoundingMode.HALF_UP per tech
+spec section 2, per State Insurance Code Section 12.4. Added regression test
+PaymentCalculatorRoundingTest to lock this in.
+
+--- JIRA-4519 detail ---
+Adds a local cache for policy lookups to reduce database calls during claim
+intake. Does not touch payment calculation or rounding logic. Reviewed and
+approved by Platform team.
+
+--- JIRA-4521 detail ---
+PR description (approved by 1 reviewer): "Consolidated the rounding logic
+scattered across three methods into a single roundAmount() utility for
+maintainability. Switched to BigDecimal.ROUND_HALF_EVEN since it's the more
+common default in modern financial libraries and avoids statistical bias
+from always rounding up. No functional test changes were made since this
+was considered a refactor, not a behavior change."

@@ -1,0 +1,32 @@
+package com.acme.claims.payment;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+/**
+ * Calculates the final payment amount for a claim, including any
+ * jurisdiction-specific surcharge.
+ *
+ * Rounding logic consolidated here per JIRA-4521.
+ */
+public class PaymentCalculator {
+
+    /**
+     * Rounds a calculated payment amount to 2 decimal places.
+     * Refactored in JIRA-4521 to consolidate rounding logic that was
+     * previously scattered across three call sites.
+     */
+    public static BigDecimal roundAmount(BigDecimal rawAmount) {
+        return rawAmount.setScale(2, RoundingMode.HALF_EVEN);
+    }
+
+    /**
+     * Computes the final payment: base settlement amount plus surcharge,
+     * rounded to 2 decimal places for the Payments API.
+     */
+    public BigDecimal calculateFinalPayment(BigDecimal baseAmount, BigDecimal surchargeRate) {
+        BigDecimal surcharge = baseAmount.multiply(surchargeRate);
+        BigDecimal total = baseAmount.add(surcharge);
+        return roundAmount(total);
+    }
+}
