@@ -22,6 +22,9 @@ public final class Main {
         System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
 
         Path dataFolder = Path.of(args.length > 0 ? args[0] : "./data/");
+        
+        System.out.println("----How may I help you?");
+         System.out.println("----This is PRoduction Incident RCA Assistant--------");
         System.err.println("(Reading source files from: " + dataFolder.toAbsolutePath().normalize() + ")");
 
         Path incidentPath = dataFolder.resolve(INCIDENT_TICKET);
