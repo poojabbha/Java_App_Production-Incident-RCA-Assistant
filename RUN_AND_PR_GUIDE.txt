@@ -1,0 +1,151 @@
+====================================================================
+  INCIDENT RCA ASSISTANT - RUN GUIDE & PULL REQUEST GUIDE
+====================================================================
+
+This app is a command-line Java tool. It reads 5 source files
+(tech spec, JIRA export, past resolution notes, current code,
+incident ticket) from ONE data folder, whose path is either:
+
+  (a) the default local "./data/" folder, or
+  (b) any other folder you pass as a command-line argument -
+      including a OneDrive-synced folder.
+
+The app itself never talks to OneDrive/SharePoint/JIRA over the
+network - it only does plain file I/O on whatever folder path you
+give it (see SPEC.md, FR-9). "OneDrive" in this guide just means a
+folder that happens to be synced by the OneDrive client; from the
+app's point of view it's an ordinary folder.
+
+Prerequisites:
+  - Java 17   (openjdk version "17.0.16")
+  - Maven 3.9 (Apache Maven 3.9.12)
+
+
+--------------------------------------------------------------------
+PART 1: BUILD THE APP
+--------------------------------------------------------------------
+
+1. Open a terminal in the project root:
+   c:\Users\bhavsarpooja.bhupe\OneDrive - HCL TECHNOLOGIES LIMITED\Desktop\Amerisure\useCase1\Java_App_Production-Incident-RCA-Assistant
+
+2. Build the jar with Maven:
+   mvn clean package
+
+3. Confirm the jar was created:
+   target\incident-rca-assistant.jar
+
+
+--------------------------------------------------------------------
+PART 2A: RUN THE APP - USING THE LOCAL "data" FOLDER (DEFAULT)
+--------------------------------------------------------------------
+
+This is the simplest path. No argument needed - the app defaults
+to "./data/" in the current directory, which already contains the
+5 required files (incident-ticket.txt, tech-spec.txt,
+jira-export.txt, past-resolution-notes.txt,
+PaymentCalculator.java.txt).
+
+Steps:
+
+1. Make sure you are in the project root (same folder as pom.xml).
+
+2. Run:
+   java -jar target\incident-rca-assistant.jar
+
+3. What happens:
+   - The app prints a banner and the resolved data folder path to
+     the console (stderr), e.g.:
+       (Reading source files from: C:\...\useCase1\...\data)
+   - It reads the 5 files from .\data\
+   - It prints the structured RCA report to the console
+   - It also writes the same report to rca-report.txt in the
+     current directory
+
+
+--------------------------------------------------------------------
+PART 2B: RUN THE APP - USING A ONEDRIVE-SYNCED DATA FOLDER
+--------------------------------------------------------------------
+
+Use this when the source files (spec, JIRA export, past notes,
+code snapshot, incident ticket) live in a shared OneDrive location
+instead of the local .\data\ folder - e.g. a folder your team syncs
+via "Add shortcut to OneDrive" or a shared library.
+
+Steps:
+
+1. Locate (or create) the OneDrive-synced folder that holds the
+   5 source files. Example path on this machine:
+   C:\Users\bhavsarpooja.bhupe\OneDrive - HCL TECHNOLOGIES LIMITED\Desktop\Amerisure\useCase1\onedrive-data
+
+2. Make sure that folder contains the same 5 files the app expects
+   (names must match exactly):
+   - incident-ticket.txt
+   - tech-spec.txt
+   - jira-export.txt
+   - past-resolution-notes.txt
+   - PaymentCalculator.java.txt
+
+   (If needed, copy them there once as a starting point:)
+   xcopy /Y data\*.* "C:\Users\bhavsarpooja.bhupe\OneDrive - HCL TECHNOLOGIES LIMITED\Desktop\Amerisure\useCase1\onedrive-data\"
+
+3. Run the jar, passing that OneDrive folder path as the first
+   argument (quote it because it contains spaces):
+   java -jar target\incident-rca-assistant.jar "C:\Users\bhavsarpooja.bhupe\OneDrive - HCL TECHNOLOGIES LIMITED\Desktop\Amerisure\useCase1\onedrive-data"
+
+4. What happens:
+   - Same as Part 2A, except the console line
+     "(Reading source files from: ...)" now shows the OneDrive path
+     you passed in, confirming the app read from OneDrive instead
+     of the local data folder.
+   - The report is still written locally to rca-report.txt in the
+     current directory (output location does not change).
+
+Note: this only works if the OneDrive client has already
+downloaded/synced those files locally so a normal file path can
+reach them (Files On-Demand placeholders count as long as the
+content is available; if a file shows as "online-only", open it
+once in OneDrive/Explorer first so it downloads).
+
+
+--------------------------------------------------------------------
+PART 3: RAISE A PULL REQUEST (GitHub)
+--------------------------------------------------------------------
+
+Repo: https://github.com/poojabbha/Java_App_Production-Incident-RCA-Assistant
+
+1. Create a feature branch off main:
+   git checkout main
+   git pull origin main
+   git checkout -b feature/your-change-name
+     e.g feature/oneDrive_integration
+
+2. Make your code changes(e.g Add some code in Main.java file)
+
+3. Review what changed:
+   git status
+   git diff
+
+4. Stage and commit (add specific files, not "-A" or "."):
+   git add <specific-files>
+   git commit -m "Short summary of why this change is needed"
+
+5. Push the branch to GitHub:
+   git push -u origin feature/your-change-name
+
+6. Open the pull request:
+   - The push output prints a direct link, e.g.:
+     https://github.com/poojabbha/Java_App_Production-Incident-RCA-Assistant/pull/new/feature/your-change-name
+   - Open that link, OR go to the repo -> "Pull requests" ->
+     "New pull request"
+   - Set base = main, compare = your feature branch
+   - Fill in:
+       Title:       concise summary
+       Description: what changed, why, and a test plan/checklist
+   - Click "Create pull request"
+
+Optional - create PRs from the terminal instead of the web UI:
+   winget install --id GitHub.cli
+   gh auth login
+   gh pr create --title "Your title" --body "Summary and test plan"
+
+====================================================================
